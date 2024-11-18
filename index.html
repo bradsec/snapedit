@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapEdit</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div id="spinner-overlay">
+            <div class="spinner"></div>
+          </div>          
+        <h1>SnapEdit</h1>
+        <p class="about">A pure JavaScript web application for basic image manipulation. Run locally and privately in your web browser.</p>
+        
+        <div class="upload-section">
+            <input type="file" id="imageInput" accept="image/*" class="file-input">
+            <label for="imageInput" class="file-label">Choose an Image</label>
+        </div>
+
+        <div class="main-content">
+        <!-- Left Column -->
+        <div class="left-controls">
+                <div class="control-group">
+                    <h3>Color Mode</h3>
+                    <select id="colorMode" class="select-input">
+                        <option value="original">Original</option>
+                        <option value="grayscale">Grayscale</option>
+                        <option value="bw">Black & White</option>
+                    </select>                    
+                </div>
+
+                <div class="control-group">
+                    <h3>Image Adjustments</h3>
+                    <div class="slider-container">
+                        <label for="contrast">Contrast: <span id="contrastValue">100%</span></label>
+                        <input type="range" id="contrast" min="0" max="200" value="100" class="slider">
+                    </div>
+                    <div class="slider-container">
+                        <label for="brightness">Brightness: <span id="brightnessValue">100%</span></label>
+                        <input type="range" id="brightness" min="0" max="200" value="100" class="slider">
+                    </div>
+                    <div class="slider-container">
+                        <label for="saturation">Saturation: <span id="saturationValue">100%</span></label>
+                        <input type="range" id="saturation" min="0" max="200" value="100" class="slider">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="posterizeCheckbox" />
+                        <label for="posterizeCheckbox">Posterize</label>
+                    </div>
+                    
+                    <div id="posterizeOptions" class="hidden">
+                        <div class="slider-container">
+                            <label for="posterize">Levels: <span id="posterizeValue">4</span></label>
+                            <input type="range" id="posterize" min="2" max="255" value="4" class="slider">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="thresholdCheckbox" />
+                        <label for="thresholdCheckbox">Threshold</label>
+                    </div>
+                    
+                    <div id="thresholdOptions" class="hidden">
+                        <div class="slider-container">
+                            <label for="threshold">Threshold: <span id="thresholdValue">16</span></label>
+                            <input type="range" id="threshold" min="0" max="255" value="16" class="slider">
+                        </div>
+                    </div>                    
+                </div>
+
+                <div class="control-group">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="pixelateCheckbox" />
+                        <label for="pixelateCheckbox">Pixelation</label>
+                    </div>
+                    
+                    <div id="pixelateOptions" class="hidden">
+                        <div class="slider-container">
+                            <label for="pixelate">Size: <span id="pixelateValue">16</span></label>
+                            <input type="range" id="pixelate" min="0" max="256" value="16" class="slider">
+                        </div>
+                    </div>                    
+                </div>
+
+                <div class="control-group">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="colorPaletteCheckbox" />
+                        <label for="colorPaletteCheckbox">Number of Colors</label>
+                    </div>
+                    
+                    <div id="colorPaletteOptions" class="hidden">
+                        <div class="slider-container">
+                            <label for="colorPalette">Colors: <span id="colorPaletteValue">16</span></label>
+                            <input type="range" id="colorPalette" min="0" max="256" value="16" class="slider">
+                        </div>
+                    </div>                    
+                </div>
+
+                <div class="control-group">
+                    <h3>Invert</h3>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="invertCheckbox" />
+                        <label for="invertCheckbox">Invert Image Colors</label>
+                    </div>
+                </div>
+        </div>
+
+
+        <!-- Center Column -->
+        <div class="preview-section">
+            <div class="preview-container-original">
+                <h3>Original Image</h3>
+                <canvas id="originalCanvas" class="preview-canvas"></canvas>
+                <div id="originalImageInfo" class="image-info">
+                    <!-- Filename and dimensions will be dynamically inserted here -->
+                </div>
+            </div>            
+            <div class="preview-container">
+                <h3>Processed Image</h3>
+                <canvas id="processedCanvas" class="preview-canvas"></canvas>
+            </div>
+        </div>
+
+            <!-- Right Column -->
+            <div class="right-controls">
+                <div class="control-group">
+                <h3>Transparency Options</h3>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="transparencyCheckbox" disabled>
+                    <label for="transparencyCheckbox">Transparent Background</label>
+                </div>
+                <div id="transparencyOptions" class="hidden">
+                    <div class="color-preview-container">
+                        <label>Detected Background Color:</label>
+                        <div id="backgroundColorPreview" class="color-preview"></div>
+                    </div>
+                    <div class="slider-container">
+                        <label for="toleranceSlider">Color Matching Tolerance: <span id="toleranceValue">2</span></label>
+                        <input type="range" id="toleranceSlider" min="0" max="20" value="2">
+                    </div>
+                </div>
+            </div>
+
+                <div class="control-group">
+                    <h3>Image Rotation</h3>
+                    <div class="slider-container">
+                        <label for="rotation">Rotation: <span id="rotationValue">0°</span></label>
+                        <input type="range" id="rotation" min="0" max="360" value="0" class="slider">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Image Scale</h3>
+                    <select id="presetScales" class="select-input">
+                        <option value="1">No change</option>
+                        <option value="4">Enlarge 4x</option>
+                        <option value="2">Enlarge 2x (double size)</option>
+                        <option value="1.75">Enlarge 1.75x</option>
+                        <option value="1.50">Enlarge 1.50x</option>
+                        <option value="1.25">Enlarge 1.25x</option>
+                        <option value="0.75">Reduce 0.75x</option>
+                        <option value="0.50">Reduce 0.50x (half size)</option>
+                        <option value="0.25">Reduce 0.25x (quarter size)</option>
+                    </select>
+                    <div id="customSizeInputs">
+                        <input type="number" id="widthInput" placeholder="Width" class="number-input">
+                        <input type="number" id="heightInput" placeholder="Height" class="number-input">
+                    </div>                   
+                </div>
+
+                <div class="control-group">
+                    <h3>Output Options</h3>
+                    <select id="outputFormat" class="select-input">
+                        <option value="png">PNG</option>
+                        <option value="jpeg">JPEG</option>
+                        <option value="webp">WEBP</option>
+                    </select>
+                    <div class="button-group">
+                        <button id="saveButton" class="button primary" disabled>Save Processed Image</button>
+                    </div>
+                </div>              
+
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

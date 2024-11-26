@@ -34,81 +34,102 @@
                 <div class="control-group">
                     <h3>Image Adjustments</h3>
                     <div class="slider-container">
-                        <label for="contrast">Contrast: <span id="contrastValue">100%</span></label>
-                        <input type="range" id="contrast" min="0" max="200" value="100" class="slider">
+                        <div class="slider-header">
+                            <label for="contrast">Contrast %</label>
+                            <button class="reset-button" data-slider="contrast">Reset</button>
+                          </div>
+                        <input type="range" id="contrastSlider" min="0" max="200" value="100" class="slider">
+                        <input type="number" id="contrastNumberInput" min="1" max="200" value="100" class="number-input">
                     </div>
                     <div class="slider-container">
-                        <label for="brightness">Brightness: <span id="brightnessValue">100%</span></label>
-                        <input type="range" id="brightness" min="0" max="200" value="100" class="slider">
+                        <div class="slider-header">
+                            <label for="brightness">Brightness %</label>
+                            <button class="reset-button" data-slider="brightness">Reset</button>
+                        </div>
+                        <input type="range" id="brightnessSlider" min="0" max="200" value="100" class="slider">
+                        <input type="number" id="brightnessNumberInput" min="1" max="200" value="100" class="number-input">
                     </div>
                     <div class="slider-container">
-                        <label for="saturation">Saturation: <span id="saturationValue">100%</span></label>
-                        <input type="range" id="saturation" min="0" max="200" value="100" class="slider">
+                        <div class="slider-header">
+                            <label for="saturation">Saturation %</label>
+                            <button class="reset-button" data-slider="saturation">Reset</button>
+                        </div>
+                        <input type="range" id="saturationSlider" min="0" max="200" value="100" class="slider">
+                        <input type="number" id="saturationNumberInput" min="1" max="200" value="100" class="number-input">
                     </div>
                 </div>
 
                 <div class="control-group">
                     <div class="checkbox-container">
-                        <input type="checkbox" id="posterizeCheckbox" />
-                        <label for="posterizeCheckbox">Posterize</label>
-                    </div>
-                    
+                        <div class="toggle-item">
+                            <label for="posterizeCheckbox">Posterize
+                            <div class="switch">
+                                <input type="checkbox" id="posterizeCheckbox" name="posterizeCheckbox">
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>     
                     <div id="posterizeOptions" class="hidden">
                         <div class="slider-container">
-                            <label for="posterize">Levels: <span id="posterizeValue">4</span></label>
-                            <input type="range" id="posterize" min="2" max="255" value="4" class="slider">
+                            <input type="range" id="posterizeSlider" min="2" max="255" value="2" class="slider">
+                            <input type="number" id="posterizeNumberInput" min="1" max="255" value="2" class="number-input">
                         </div>
                     </div>
                 </div>
 
                 <div class="control-group">
                     <div class="checkbox-container">
-                        <input type="checkbox" id="thresholdCheckbox" />
-                        <label for="thresholdCheckbox">Threshold</label>
-                    </div>
-                    
+                        <div class="toggle-item">
+                            <label for="thresholdCheckbox">Threshold
+                            <div class="switch">
+                                <input type="checkbox" id="thresholdCheckbox" name="thresholdCheckbox">
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>                   
                     <div id="thresholdOptions" class="hidden">
                         <div class="slider-container">
-                            <label for="threshold">Threshold: <span id="thresholdValue">16</span></label>
-                            <input type="range" id="threshold" min="0" max="255" value="16" class="slider">
+                            <input type="range" id="thresholdSlider" min="0" max="255" value="67" class="slider">
+                            <input type="number" id="thresholdNumberInput" min="1" max="256" value="67" class="number-input">
                         </div>
                     </div>                    
                 </div>
 
                 <div class="control-group">
                     <div class="checkbox-container">
-                        <input type="checkbox" id="pixelateCheckbox" />
-                        <label for="pixelateCheckbox">Pixelation</label>
-                    </div>
-                    
+                        <div class="toggle-item">
+                            <label for="pixelateCheckbox">Pixelate
+                            <div class="switch">
+                                <input type="checkbox" id="pixelateCheckbox" name="pixelateCheckbox">
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>                    
                     <div id="pixelateOptions" class="hidden">
                         <div class="slider-container">
-                            <label for="pixelate">Size: <span id="pixelateValue">16</span></label>
-                            <input type="range" id="pixelate" min="0" max="256" value="16" class="slider">
+                            <input type="range" id="pixelateSlider" min="0" max="256" value="16" class="slider">
+                            <input type="number" id="pixelateNumberInput" min="1" max="256" value="16" class="number-input">
                         </div>
                     </div>                    
                 </div>
 
                 <div class="control-group">
                     <div class="checkbox-container">
-                        <input type="checkbox" id="colorPaletteCheckbox" />
-                        <label for="colorPaletteCheckbox">Number of Colors</label>
-                    </div>
-                    
-                    <div id="colorPaletteOptions" class="hidden">
+                        <div class="toggle-item">
+                            <label for="halftoneCheckbox">Halftone
+                            <div class="switch">
+                                <input type="checkbox" id="halftoneCheckbox" name="halftoneCheckbox">
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>                     
+                    <div id="halftoneOptions" class="hidden">
                         <div class="slider-container">
-                            <label for="colorPalette">Colors: <span id="colorPaletteValue">16</span></label>
-                            <input type="range" id="colorPalette" min="0" max="256" value="16" class="slider">
+                            <label for="halftoneRadius">Max Radius
+                            <input type="range" id="halftoneRadiusSlider" min="1" max="100" value="10" class="slider">
+                            <input type="number" id="halftoneRadiusNumberInput" min="1" max="100" value="10" class="number-input">
                         </div>
                     </div>                    
-                </div>
-
-                <div class="control-group">
-                    <h3>Invert</h3>
-                    <div class="checkbox-container">
-                        <input type="checkbox" id="invertCheckbox" />
-                        <label for="invertCheckbox">Invert Image Colors</label>
-                    </div>
                 </div>
         </div>
 
@@ -131,28 +152,73 @@
             <!-- Right Column -->
             <div class="right-controls">
                 <div class="control-group">
-                <h3>Transparency Options</h3>
-                <div class="checkbox-container">
-                    <input type="checkbox" id="transparencyCheckbox" disabled>
-                    <label for="transparencyCheckbox">Transparent Background</label>
+                    <div class="checkbox-container">
+                        <div class="toggle-item">
+                            <label for="colorPaletteCheckbox">Reduce Colors
+                            <div class="switch">
+                                <input type="checkbox" id="colorPaletteCheckbox" name="colorPaletteCheckbox">
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>                     
+                    <div id="colorPaletteOptions" class="hidden">
+                        <div class="slider-container">
+                            <input type="range" id="colorPaletteSlider" min="0" max="256" value="8" class="slider">
+                            <input type="number" id="colorPaletteNumberInput" min="1" max="256" value="8" class="number-input">
+                        </div>
+                    </div>                    
                 </div>
+
+                <div class="control-group">
+                    <div class="checkbox-container">
+                        <div class="toggle-item">
+                            <label for="invertCheckbox">Invert
+                            <div class="switch">
+                                <input type="checkbox" id="invertCheckbox" name="invertCheckbox">
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="checkbox-container">
+                        <div class="toggle-item">
+                            <label for="transparencyCheckbox">Transparency
+                            <div class="switch">
+                                <input type="checkbox" id="transparencyCheckbox" name="transparencyCheckbox" disabled>
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>
                 <div id="transparencyOptions" class="hidden">
                     <div class="color-preview-container">
                         <label>Detected Background Color:</label>
                         <div id="backgroundColorPreview" class="color-preview"></div>
                     </div>
                     <div class="slider-container">
-                        <label for="toleranceSlider">Color Matching Tolerance: <span id="toleranceValue">2</span></label>
-                        <input type="range" id="toleranceSlider" min="0" max="20" value="2">
+                        <label for="colorToleranceSlider">Color Matching Tolerance: </label>
+                        <input type="range" id="colorToleranceSlider" min="0" max="20" value="2">
+                        <input type="number" id="colorToleranceNumberInput" min="0" max="20" value="2" class="number-input">
                     </div>
                 </div>
             </div>
 
                 <div class="control-group">
-                    <h3>Image Rotation</h3>
-                    <div class="slider-container">
-                        <label for="rotation">Rotation: <span id="rotationValue">0°</span></label>
-                        <input type="range" id="rotation" min="0" max="360" value="0" class="slider">
+                    <div class="checkbox-container">
+                        <div class="toggle-item">
+                            <label for="rotationCheckbox">Rotate Image
+                            <div class="switch">
+                                <input type="checkbox" id="rotationCheckbox" name="rotationCheckbox">
+                                <span class="toggle-slider round"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="rotationOptions" class="hidden">
+                        <div class="slider-container">
+                            <input type="range" id="rotationSlider" min="0" max="360" value="0">
+                            <input type="number" id="rotationNumberInput" min="0" max="360" value="0" class="number-input">
+                        </div>
                     </div>
                 </div>
 

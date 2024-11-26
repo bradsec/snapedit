@@ -1,204 +1,140 @@
 class ImageProcessor {
     constructor() {
         this.initializeElements();
+        this.initializeSliderResets();
         this.initializeEventListeners();
         this.originalImage = null;
         this.backgroundColor = null;
-        this.tolerance = 2;
     }
 
     initializeElements() {
-        // Input elements
-        this.imageInput = document.getElementById('imageInput');
-        this.presetScales = document.getElementById('presetScales');
-        this.widthInput = document.getElementById('widthInput');
-        this.heightInput = document.getElementById('heightInput');
-        this.colorMode = document.getElementById('colorMode');
-        this.outputFormat = document.getElementById('outputFormat');
-        
-        // Canvases
-        this.originalCanvas = document.getElementById('originalCanvas');
-        this.processedCanvas = document.getElementById('processedCanvas');
-        
-        // Initialize canvas contexts
-        this.originalCtx = this.originalCanvas.getContext('2d', { willReadFrequently: true });
-        this.processedCtx = this.processedCanvas.getContext('2d', { willReadFrequently: true });
-        
-        // Buttons
-        this.saveButton = document.getElementById('saveButton');
 
-        // Checkboxes
-        this.pixelateCheckbox = document.getElementById('pixelateCheckbox');
-        this.posterizeCheckbox = document.getElementById('posterizeCheckbox');
-        this.invertCheckbox = document.getElementById('invertCheckbox');
-        this.colorPaletteCheckbox = document.getElementById('colorPaletteCheckbox');
-        this.thresholdCheckbox = document.getElementById('thresholdCheckbox');
-
-        // Additional checkbox options
-        this.colorPaletteOptions = document.getElementById('colorPaletteOptions')
-        this.pixelateOptions = document.getElementById('pixelateOptions')
-        this.posterizeOptions = document.getElementById('posterizeOptions')
-        this.thresholdOptions = document.getElementById('thresholdOptions')
-
-        // Add new adjustment controls
-        this.contrastInput = document.getElementById('contrast');
-        this.brightnessInput = document.getElementById('brightness');
-        this.saturationInput = document.getElementById('saturation');
-        this.rotationInput = document.getElementById('rotation');
-        this.posterizeInput = document.getElementById('posterize');
-        this.pixelateInput = document.getElementById('pixelate');
-        this.colorPaletteInput = document.getElementById('colorPalette');
-        this.thresholdInput = document.getElementById('threshold');
-
-        // Add value display spans
-        this.contrastValue = document.getElementById('contrastValue');
-        this.brightnessValue = document.getElementById('brightnessValue');
-        this.saturationValue = document.getElementById('saturationValue');
-        this.rotationValue = document.getElementById('rotationValue');
-        this.posterizeValue = document.getElementById('posterizeValue');
-        this.pixelateValue = document.getElementById('pixelateValue');
-        this.colorPaletteValue = document.getElementById('colorPaletteValue');
-        this.thresholdValue = document.getElementById('thresholdValue');
-
-        // Add transparency checkbox and controls
-        this.transparencyCheckbox = document.getElementById('transparencyCheckbox');
-        this.transparencyOptions = document.getElementById('transparencyOptions');
-        this.toleranceSlider = document.getElementById('toleranceSlider');
-        this.toleranceValue = document.getElementById('toleranceValue');
         this.backgroundColorPreview = document.getElementById('backgroundColorPreview');
-
-        // Spinner
         this.spinnerOverlay = document.getElementById('spinner-overlay');
         
         // Initialize canvases with alpha support
         this.originalCanvas = document.getElementById('originalCanvas');
         this.processedCanvas = document.getElementById('processedCanvas');
-        
+
+        // Helper function to initialize DOM elements by ID
+        const getById = (id) => document.getElementById(id);
+    
+        // Configuration for elements
+        const elements = {
+            inputs: [
+                'imageInput', 'presetScales', 'widthInput', 'heightInput', 'colorMode', 'outputFormat'
+            ],
+            canvases: [
+                'originalCanvas', 'processedCanvas'
+            ],
+            buttons: [
+                'saveButton'
+            ],
+            checkboxes: [
+                'pixelateCheckbox', 'posterizeCheckbox', 'invertCheckbox', 
+                'colorPaletteCheckbox', 'thresholdCheckbox', 'rotationCheckbox', 
+                'transparencyCheckbox', 'halftoneCheckbox'
+            ],
+            sliders: [
+                'contrastSlider', 'brightnessSlider', 'saturationSlider', 
+                'rotationSlider', 'posterizeSlider', 'pixelateSlider', 
+                'colorPaletteSlider', 'thresholdSlider', 'colorToleranceSlider',
+                'halftoneRadiusSlider'
+            ],
+            numberInputs: [
+                'contrastNumberInput', 'brightnessNumberInput', 
+                'saturationNumberInput', 'rotationNumberInput', 
+                'pixelateNumberInput', 'posterizeNumberInput', 
+                'colorPaletteNumberInput', 'thresholdNumberInput', 
+                'colorToleranceNumberInput', 'halftoneRadiusNumberInput',
+                
+            ],
+            options: [
+                'colorPaletteOptions', 'pixelateOptions', 'posterizeOptions', 
+                'thresholdOptions', 'rotationOptions', 'transparencyOptions',
+                'halftoneOptions'
+            ]
+        };
+    
+        // Initialize elements dynamically
+        Object.keys(elements).forEach((group) => {
+            elements[group].forEach((id) => {
+                this[id] = getById(id);
+            });
+        });
+    
+        // Initialize canvases and contexts
         this.originalCtx = this.originalCanvas.getContext('2d', { 
-            willReadFrequently: true,
-            alpha: true
+            willReadFrequently: true, 
+            alpha: true 
         });
         this.processedCtx = this.processedCanvas.getContext('2d', { 
-            willReadFrequently: true,
-            alpha: true
+            willReadFrequently: true, 
+            alpha: true 
         });
-
-        // Add new input elements for manual value entry
-        this.contrastNumberInput = document.createElement('input');
-        this.brightnessNumberInput = document.createElement('input');
-        this.saturationNumberInput = document.createElement('input');
-        this.rotationNumberInput = document.createElement('input');
-        this.pixelateNumberInput = document.createElement('input');
-        this.posterizeNumberInput = document.createElement('input');
-        this.colorPaletteNumberInput = document.createElement('input');
-        this.thresholdNumberInput = document.createElement('input');
-
-        // Configure number inputs
-        [this.contrastNumberInput, this.brightnessNumberInput, this.saturationNumberInput].forEach(input => {
-            input.type = 'number';
-            input.min = '0';
-            input.max = '200';
-            input.value = '100';
-            input.className = 'number-input';
-            input.style.width = '70px';
-            input.style.marginTop = '5px';
-        });
-
-        [this.pixelateNumberInput, this.posterizeNumberInput, this.colorPaletteNumberInput, this.thresholdNumberInput].forEach(input => {
-            input.type = 'number';
-            input.min = '2';
-            input.max = '256';
-            input.value = '16';
-            input.className = 'number-input';
-            input.style.width = '70px';
-            input.style.marginTop = '5px';
-        });
-
-        this.rotationNumberInput.type = 'number';
-        this.rotationNumberInput.min = '-180';
-        this.rotationNumberInput.max = '180';
-        this.rotationNumberInput.value = '0';
-        this.rotationNumberInput.className = 'number-input';
-        this.rotationNumberInput.style.width = '70px';
-        this.rotationNumberInput.style.marginTop = '5px';
-
-        // Add number inputs to the DOM
-        document.querySelector('#contrast').parentNode.appendChild(this.contrastNumberInput);
-        document.querySelector('#brightness').parentNode.appendChild(this.brightnessNumberInput);
-        document.querySelector('#saturation').parentNode.appendChild(this.saturationNumberInput);
-        document.querySelector('#rotation').parentNode.appendChild(this.rotationNumberInput);
-        document.querySelector('#pixelate').parentNode.appendChild(this.pixelateNumberInput);
-        document.querySelector('#posterize').parentNode.appendChild(this.posterizeNumberInput);
-        document.querySelector('#colorPalette').parentNode.appendChild(this.colorPaletteNumberInput);
-        document.querySelector('#threshold').parentNode.appendChild(this.thresholdNumberInput);
-    }
+    }    
 
     initializeEventListeners() {
-        this.imageInput.addEventListener('change', this.handleImageUpload.bind(this));
-        this.presetScales.addEventListener('change', this.handlePresetScaleChange.bind(this));
-        this.colorMode.addEventListener('change', this.handleColorModeChange.bind(this));
-        this.saveButton.addEventListener('click', this.saveImage.bind(this));
-
+        // Helper to bind `this` for class methods
+        const bindMethod = (method) => method.bind(this);
+    
+        // General input listeners
+        this.imageInput.addEventListener('change', bindMethod(this.handleImageUpload));
+        this.presetScales.addEventListener('change', bindMethod(this.handlePresetScaleChange));
+        this.colorMode.addEventListener('change', bindMethod(this.handleColorModeChange));
+        this.saveButton.addEventListener('click', bindMethod(this.saveImage));
+    
+        // Slider and number input synchronization
         const sliderInputs = {
-            contrast: [this.contrastInput, this.contrastNumberInput],
-            brightness: [this.brightnessInput, this.brightnessNumberInput],
-            saturation: [this.saturationInput, this.saturationNumberInput],
-            rotation: [this.rotationInput, this.rotationNumberInput],
-            pixelate: [this.pixelateInput, this.pixelateNumberInput],
-            posterize: [this.posterizeInput, this.posterizeNumberInput],
-            colorPalette: [this.colorPaletteInput, this.colorPaletteNumberInput],
-            threshold: [this.thresholdInput, this.thresholdNumberInput],
+            contrast: [this.contrastSlider, this.contrastNumberInput],
+            brightness: [this.brightnessSlider, this.brightnessNumberInput],
+            saturation: [this.saturationSlider, this.saturationNumberInput],
+            rotation: [this.rotationSlider, this.rotationNumberInput],
+            pixelate: [this.pixelateSlider, this.pixelateNumberInput],
+            posterize: [this.posterizeSlider, this.posterizeNumberInput],
+            colorPalette: [this.colorPaletteSlider, this.colorPaletteNumberInput],
+            threshold: [this.thresholdSlider, this.thresholdNumberInput],
+            colorTolerance: [this.colorToleranceSlider, this.colorToleranceNumberInput],
+            halftoneRadius: [this.halftoneRadiusSlider, this.halftoneRadiusNumberInput],
         };
-
+    
         Object.entries(sliderInputs).forEach(([type, [slider, numberInput]]) => {
-            const updateUI = (value) => {
-                let suffix;
-                switch (type) {
-                    case 'rotation':
-                        suffix = '°';
-                        break;
-                    case 'scale':
-                        suffix = 'x';
-                        break;
-                    case 'saturation':
-                    case 'brightness':
-                    case 'contrast':
-                        suffix = '%';
-                        break;
-                    // Add more cases as needed
-                    default:
-                        suffix = ''; // Default suffix if type is unrecognized
-                }
-                document.getElementById(`${type}Value`).textContent = `${value}${suffix}`;
-            };
-        
             slider.addEventListener('input', (e) => {
                 const value = e.target.value;
-                updateUI(value);
                 numberInput.value = value;
-        
-                if (this.processingTimeout) {
-                    clearTimeout(this.processingTimeout);
-                }
-                this.processingTimeout = setTimeout(() => {
-                    this.processImageWithSpinner();
-                }, 50);
+    
+                if (this.processingTimeout) clearTimeout(this.processingTimeout);
+                this.processingTimeout = setTimeout(() => this.processImageWithSpinner(), 50);
             });
-        
+    
             numberInput.addEventListener('input', (e) => {
-                const value = Math.min(Math.max(parseFloat(e.target.value), slider.min), slider.max);
+                const value = e.target.value;
                 slider.value = value;
-                updateUI(value);
-        
-                if (this.processingTimeout) {
-                    clearTimeout(this.processingTimeout);
-                }
-                this.processingTimeout = setTimeout(() => {
-                    this.processImageWithSpinner();
-                }, 50);
+    
+                if (this.processingTimeout) clearTimeout(this.processingTimeout);
+                this.processingTimeout = setTimeout(() => this.processImageWithSpinner(), 50);
             });
         });
-
+    
+        // Checkbox listeners for toggling options and processing
+        const checkboxMappings = {
+            transparencyCheckbox: this.transparencyOptions,
+            colorPaletteCheckbox: this.colorPaletteOptions,
+            pixelateCheckbox: this.pixelateOptions,
+            posterizeCheckbox: this.posterizeOptions,
+            thresholdCheckbox: this.thresholdOptions,
+            rotationCheckbox: this.rotationOptions,
+            halftoneCheckbox: this.halftoneOptions,
+        };
+    
+        Object.entries(checkboxMappings).forEach(([checkbox, optionsElement]) => {
+            this[checkbox].addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                optionsElement.classList.toggle('hidden', !isChecked);
+                if (this.originalImage) this.processImageWithSpinner();
+            });
+        });
+    
         // Add transparency-related listeners
         this.transparencyCheckbox.addEventListener('change', (e) => {
             // Show/hide transparency options based on checkbox state
@@ -233,51 +169,8 @@ class ImageProcessor {
             this.processImageWithSpinner();
             }
         };
-
-        // Add checkbox listeners to show/hide options
-        this.invertCheckbox.addEventListener('change', (e) => {
-            if (this.originalImage) {
-                this.processImageWithSpinner();
-            }
-        });
-
-        this.colorPaletteCheckbox.addEventListener('change', (e) => {
-            this.colorPaletteOptions.classList.toggle('hidden', !e.target.checked);
-            if (this.originalImage) {
-                this.processImageWithSpinner();
-            }
-        });
-
-        this.pixelateCheckbox.addEventListener('change', (e) => {
-            this.pixelateOptions.classList.toggle('hidden', !e.target.checked);
-            if (this.originalImage) {
-                this.processImageWithSpinner();
-            }
-        });
-
-        this.posterizeCheckbox.addEventListener('change', (e) => {
-            this.posterizeOptions.classList.toggle('hidden', !e.target.checked);
-            if (this.originalImage) {
-                this.processImageWithSpinner();
-            }
-        });
-
-        this.thresholdCheckbox.addEventListener('change', (e) => {
-            this.thresholdOptions.classList.toggle('hidden', !e.target.checked);
-            if (this.originalImage) {
-                this.processImageWithSpinner();
-            }
-        });
-
-        this.toleranceSlider.addEventListener('input', (e) => {
-            this.tolerance = parseInt(e.target.value);
-            this.toleranceValue.textContent = this.tolerance;
-            if (this.originalImage) {
-                this.processImageWithSpinner();
-            }
-        });
-
-        // Modify output format listener
+    
+        // Output format listener
         this.outputFormat.addEventListener('change', (e) => {
             const isPNG = e.target.value === 'png';
             this.transparencyCheckbox.disabled = !isPNG;
@@ -285,11 +178,45 @@ class ImageProcessor {
                 this.transparencyCheckbox.checked = false;
                 this.transparencyOptions.classList.add('hidden');
             }
-            if (this.originalImage) {
-                this.processImageWithSpinner();
-            }
+            if (this.originalImage) this.processImageWithSpinner();
+        });
+    
+        // Invert processing listener
+        this.invertCheckbox.addEventListener('change', () => {
+            if (this.originalImage) this.processImageWithSpinner();
         });
     }
+    
+
+    initializeSliderResets() {
+        this.defaultValues = {
+          contrast: 100,
+          brightness: 100,
+          saturation: 100
+        };
+      
+        document.querySelectorAll('.reset-button').forEach(button => {
+          const sliderId = button.dataset.slider;
+          button.addEventListener('click', () => this.resetSlider(sliderId));
+        });
+      }
+      
+      resetSlider(sliderId) {
+        const defaultValue = this.defaultValues[sliderId];
+        const slider = document.getElementById(`${sliderId}Slider`);
+        const sliderInput = document.getElementById(`${sliderId}NumberInput`);
+        if (slider) {
+          slider.value = defaultValue;
+          sliderInput.value = defaultValue;
+          // Update the value display
+          const valueDisplay = slider.parentElement.querySelector('.slider-value');
+          if (valueDisplay) {
+            valueDisplay.textContent = `${defaultValue}%`;
+          }
+          // Trigger the change event to update the image
+          slider.dispatchEvent(new Event('input'));
+        }
+      }
 
     async handleImageUpload(event) {
         const file = event.target.files[0];
@@ -688,7 +615,7 @@ class ImageProcessor {
         if (!this.backgroundColor) return;
         
         const uint8View = new Uint8Array(pixels.buffer);
-        const threshold = this.tolerance * 25; // Adjusted threshold for RGB comparison
+        const threshold = this.colorToleranceNumberInput.value * 25; // Adjusted threshold for RGB comparison
         const bg = this.backgroundColor;
         
         // Use typed arrays for better performance
@@ -723,69 +650,68 @@ class ImageProcessor {
     }
 
     async processImageWithSpinner() {
-        
         try {
-          // Show spinner
-          this.spinnerOverlay.classList.add('active');
-          
-          // Wait for processImage to complete
-          await this.processImage();  // Modified to return a Promise
-          
+            // Show spinner
+            this.spinnerOverlay.classList.add('active');
+    
+            // Ensure there’s an image to process
+            if (!this.originalImage) {
+                throw new Error("No image loaded for processing.");
+            }
+    
+            // Wait for `processImage` to finish
+            await this.processImage();
+    
         } catch (error) {
-          console.error('Error processing image:', error);
+            console.error("Error during image processing:", error.message);
+            alert("An error occurred: " + error.message);
         } finally {
-          // Hide spinner
-          this.spinnerOverlay.classList.remove('active');
+            // Always hide the spinner
+            this.spinnerOverlay.classList.remove('active');
         }
-      }
+    }
+    
 
     processImage() {
         return new Promise((resolve, reject) => {
             if (!this.originalImage) {
-                reject(new Error('No image loaded'));
+                reject(new Error("No image available for processing."));
                 return;
             }
     
             try {
-                const width = parseInt(this.widthInput.value) || this.originalImage.width;
-                const height = parseInt(this.heightInput.value) || this.originalImage.height;
-                const rotation = parseInt(this.rotationInput.value) * Math.PI / 180;
-                
-                // Set up initial canvas with original dimensions
+                // Read inputs
+                const width = parseInt(this.widthInput?.value) || this.originalImage.width;
+                const height = parseInt(this.heightInput?.value) || this.originalImage.height;
+                const rotation = parseFloat(this.rotationSlider?.value || 0) * (Math.PI / 180);
+    
+                // Initialize canvas
                 this.processedCanvas.width = width;
                 this.processedCanvas.height = height;
-                
-                // Clear the canvas
                 this.processedCtx.clearRect(0, 0, width, height);
-                
-                // Draw resized image
+    
+                // Draw the base image
                 this.processedCtx.drawImage(this.originalImage, 0, 0, width, height);
-                
-                // Get image data for processing
-                let imageData = this.processedCtx.getImageData(0, 0, width, height);
+    
+                // Apply adjustments (e.g., grayscale, contrast, etc.)
+                const imageData = this.processedCtx.getImageData(0, 0, width, height);
                 const pixels = imageData.data;
-                
-                // Apply color modes first
-                switch (this.colorMode.value) {
-                    case 'grayscale':
-                        this.applyGrayscale(pixels);
-                        break;
-                    case 'bw':
-                        this.applyBlackAndWhite(pixels);
-                        break;
-                }
-                
+    
+                if (this.colorMode.value === "grayscale") this.applyGrayscale(pixels);
+                if (this.colorMode.value === "bw") this.applyBlackAndWhite(pixels);
+    
                 // Apply adjustments
-                const contrast = parseInt(this.contrastInput.value) / 100;
-                const brightness = parseInt(this.brightnessInput.value) / 100;
-                const saturation = parseInt(this.saturationInput.value) / 100;
-                const pixelate = parseInt(this.pixelateInput.value);
-                const posterize = parseInt(this.posterizeInput.value);
-                const colorPalette = parseInt(this.colorPaletteInput.value);
-                const threshold = parseInt(this.thresholdInput.value);
+                const contrast = parseInt(this.contrastSlider.value) / 100;
+                const brightness = parseInt(this.brightnessSlider.value) / 100;
+                const saturation = parseInt(this.saturationSlider.value) / 100;
+                const pixelate = parseInt(this.pixelateSlider.value);
+                const posterize = parseInt(this.posterizeSlider.value);
+                const colorPalette = parseInt(this.colorPaletteSlider.value);
+                const threshold = parseInt(this.thresholdSlider.value);
+                const halftoneRadius = parseInt(this.halftoneRadiusSlider.value);
                 
                 this.applyImageAdjustments(pixels, contrast, brightness, saturation);
-                
+    
                 // Apply other effects
                 if (this.posterizeCheckbox.checked) {
                     this.applyPosterize(pixels, posterize);
@@ -802,13 +728,17 @@ class ImageProcessor {
                 if (this.thresholdCheckbox.checked) {
                     this.applyThreshold(pixels, threshold);
                 }
-                
+
+                if (this.halftoneCheckbox.checked) {
+                    this.applyHalftone(pixels, width, height, halftoneRadius)
+                }
+
                 // Apply pixelate
                 this.processedCtx.putImageData(imageData, 0, 0);
                 if (this.pixelateCheckbox.checked) {
                     this.pixelateImage(this.processedCtx, width, height, pixelate);
                 }
-                
+               
                 // Create new image for rotation processing
                 const processedImage = new Image();
                 processedImage.onerror = () => {
@@ -821,31 +751,33 @@ class ImageProcessor {
                         let newWidth = width;
                         let newHeight = height;
                         
-                        if (rotation !== 0) {
-                            const absoluteRotation = Math.abs(rotation % (2 * Math.PI));
-                            const sin = Math.abs(Math.sin(absoluteRotation));
-                            const cos = Math.abs(Math.cos(absoluteRotation));
+                        if (this.rotationCheckbox.checked) {
+                            if (rotation !== 0) {
+                                const absoluteRotation = Math.abs(rotation % (2 * Math.PI));
+                                const sin = Math.abs(Math.sin(absoluteRotation));
+                                const cos = Math.abs(Math.cos(absoluteRotation));
+                                
+                                newWidth = Math.ceil(width * cos + height * sin);
+                                newHeight = Math.ceil(width * sin + height * cos);
+                            }
                             
-                            newWidth = Math.ceil(width * cos + height * sin);
-                            newHeight = Math.ceil(width * sin + height * cos);
+                            // Resize canvas to fit rotated image
+                            this.processedCanvas.width = newWidth;
+                            this.processedCanvas.height = newHeight;
+                            
+                            // Clear canvas
+                            this.processedCtx.clearRect(0, 0, newWidth, newHeight);
+                            
+                            // Apply rotation
+                            if (rotation !== 0) {
+                                this.processedCtx.translate(newWidth / 2, newHeight / 2);
+                                this.processedCtx.rotate(rotation);
+                                this.processedCtx.translate(-width / 2, -height / 2);
+                            }
+                            
+                            // Draw the processed image
+                            this.processedCtx.drawImage(processedImage, 0, 0, width, height);
                         }
-                        
-                        // Resize canvas to fit rotated image
-                        this.processedCanvas.width = newWidth;
-                        this.processedCanvas.height = newHeight;
-                        
-                        // Clear canvas
-                        this.processedCtx.clearRect(0, 0, newWidth, newHeight);
-                        
-                        // Apply rotation
-                        if (rotation !== 0) {
-                            this.processedCtx.translate(newWidth / 2, newHeight / 2);
-                            this.processedCtx.rotate(rotation);
-                            this.processedCtx.translate(-width / 2, -height / 2);
-                        }
-                        
-                        // Draw the processed image
-                        this.processedCtx.drawImage(processedImage, 0, 0, width, height);
                         
                         // Apply transparency last
                         if (this.transparencyCheckbox.checked && this.outputFormat.value === 'png') {
@@ -1010,10 +942,110 @@ class ImageProcessor {
     
             // Set RGB channels to either black or white
             pixels[i] = pixels[i + 1] = pixels[i + 2] = value;
-    
-            // Alpha channel remains unchanged
         }
     }    
+
+    applyHalftone(pixels, imageWidth, imageHeight, maxRadius) {
+        const output = new Uint8ClampedArray(pixels.length);
+        output.fill(255); // Set all pixels to white initially
+    
+        // Use a more precise sampling method
+        const sampleMethod = (x, y) => {
+            if (x < 0 || x >= imageWidth || y < 0 || y >= imageHeight) {
+                return [255, 255, 255];
+            }
+            const i = (y * imageWidth + x) * 4;
+            return [
+                pixels[i], 
+                pixels[i + 1], 
+                pixels[i + 2]
+            ];
+        };
+    
+        // Implement a more sophisticated dot placement strategy
+        const gridSize = Math.max(2, Math.floor(maxRadius * 2));
+        
+        for (let y = 0; y < imageHeight; y += gridSize) {
+            for (let x = 0; x < imageWidth; x += gridSize) {
+                // Advanced color sampling with bilinear interpolation
+                const samples = [
+                    sampleMethod(x, y),
+                    sampleMethod(x + gridSize, y),
+                    sampleMethod(x, y + gridSize),
+                    sampleMethod(x + gridSize, y + gridSize)
+                ];
+    
+                // Calculate average color with weighted sampling
+                const avgColor = samples.reduce((acc, sample) => [
+                    acc[0] + sample[0],
+                    acc[1] + sample[1],
+                    acc[2] + sample[2]
+                ], [0, 0, 0]).map(val => val / samples.length);
+    
+                // Calculate luminance using more precise method
+                const luminance = 
+                    0.2126 * avgColor[0] + 
+                    0.7152 * avgColor[1] + 
+                    0.0722 * avgColor[2];
+    
+                // Create a more nuanced dot radius calculation
+                const dotRadius = maxRadius * (1 - luminance / 255);
+    
+                // Calculate dot center with slight randomization
+                const centerX = x + gridSize / 2;
+                const centerY = y + gridSize / 2;
+    
+                if (dotRadius > 0.5) {
+                    this.drawAdvancedHalftoneDot(
+                        output, 
+                        imageWidth, 
+                        imageHeight, 
+                        centerX, 
+                        centerY, 
+                        dotRadius, 
+                        avgColor
+                    );
+                }
+            }
+        }
+    
+        // Replace original pixels with halftone pattern
+        pixels.set(output);
+    }
+    
+    drawAdvancedHalftoneDot(pixels, width, height, centerX, centerY, radius, color) {
+        const radiusSq = radius * radius;
+        
+        // Calculate bounding box with slight extension
+        const minX = Math.max(0, Math.floor(centerX - radius - 1));
+        const maxX = Math.min(width - 1, Math.ceil(centerX + radius + 1));
+        const minY = Math.max(0, Math.floor(centerY - radius - 1));
+        const maxY = Math.min(height - 1, Math.ceil(centerY + radius + 1));
+    
+        for (let y = minY; y <= maxY; y++) {
+            for (let x = minX; x <= maxX; x++) {
+                const dx = x - centerX;
+                const dy = y - centerY;
+                const distSq = dx * dx + dy * dy;
+    
+                // Implement a smoother dot edge with anti-aliasing
+                if (distSq <= radiusSq) {
+                    const i = (y * width + x) * 4;
+                    
+                    // Distance-based intensity with smoother falloff
+                    const distance = Math.sqrt(distSq);
+                    const edgeBlend = Math.max(0, 1 - (distance / radius));
+                    
+                    // Apply color-preserving dot rendering
+                    pixels[i] = Math.round(color[0] * edgeBlend);
+                    pixels[i + 1] = Math.round(color[1] * edgeBlend);
+                    pixels[i + 2] = Math.round(color[2] * edgeBlend);
+                    pixels[i + 3] = 255;
+                }
+            }
+        }
+    }
+
     
     applyGrayscale(pixels) {
         for (let i = 0; i < pixels.length; i += 4) {
@@ -1162,31 +1194,36 @@ class ImageProcessor {
         this.thresholdCheckbox.checked = false;
         this.thresholdOptions.classList.add('hidden');
 
+        this.rotationCheckbox.checked = false;
+        this.rotationOptions.classList.add('hidden');
+
         this.colorPaletteCheckbox.checked = false;
         this.colorPaletteOptions.classList.add('hidden');
+
+        this.halftoneCheckbox.checked = false;
+        this.halftoneOptions.classList.add('hidden');
 
         this.invertCheckbox.checked = false;
 
         // Reset new controls
-        this.contrastInput.value = 100;
-        this.brightnessInput.value = 100;
-        this.saturationInput.value = 100;
-        this.rotationInput.value = 0;
-        this.contrastNumberInput.value = '100';
-        this.brightnessNumberInput.value = '100';
-        this.saturationNumberInput.value = '100';
-        this.rotationNumberInput.value = '0';
-        
-        // Reset value displays
-        this.contrastValue.textContent = '100%';
-        this.brightnessValue.textContent = '100%';
-        this.saturationValue.textContent = '100%';
-        this.rotationValue.textContent = '0°';
-        this.posterizeValue.textContent = '4';
-        this.pixelateValue.textContent = '16';
-        this.colorPaletteValue.textContent = '16';
-        this.thresholdValue.textContent = '16';
-        this.toleranceValue.textContent = '2';
+        this.contrastSlider.value = 100;
+        this.brightnessSlider.value = 100;
+        this.saturationSlider.value = 100;
+        this.rotationSlider.value = 0;
+        this.colorPaletteSlider.value = 16;
+        this.posterizeSlider.value = 2;
+        this.pixelateSlider.value = 16;
+        this.thresholdSlider.value = 67;
+        this.halftoneRadiusSlider.value = 10;
+        this.contrastNumberInput.value = 100;
+        this.brightnessNumberInput.value = 100;
+        this.saturationNumberInput.value = 100;
+        this.rotationNumberInput.value = 0;
+        this.colorPaletteNumberInput.value = 16;
+        this.posterizeNumberInput.value = 2;
+        this.pixelateNumberInput.value = 16;
+        this.thresholdNumberInput.value = 67;
+        this.halftoneRadiusNumberInput.value = 10;
         
         // Clear processed canvas
         const ctx = this.processedCanvas.getContext('2d');
@@ -1204,6 +1241,7 @@ class ImageProcessor {
 }
 
 // Initialize the application
+
 document.addEventListener('DOMContentLoaded', () => {
     new ImageProcessor();
 });

@@ -659,18 +659,17 @@ class ImageProcessor {
                 throw new Error("No image loaded for processing.");
             }
     
-            // Wait for `processImage` to finish
+            // Wait for the `processImage` function to finish
             await this.processImage();
     
         } catch (error) {
             console.error("Error during image processing:", error.message);
             alert("An error occurred: " + error.message);
         } finally {
-            // Always hide the spinner
+            // Always hide the spinner after processing completes
             this.spinnerOverlay.classList.remove('active');
         }
     }
-    
 
     processImage() {
         return new Promise((resolve, reject) => {
@@ -709,103 +708,103 @@ class ImageProcessor {
                 const colorPalette = parseInt(this.colorPaletteSlider.value);
                 const threshold = parseInt(this.thresholdSlider.value);
                 const halftoneRadius = parseInt(this.halftoneRadiusSlider.value);
-                
+    
                 this.applyImageAdjustments(pixels, contrast, brightness, saturation);
     
                 // Apply other effects
                 if (this.posterizeCheckbox.checked) {
                     this.applyPosterize(pixels, posterize);
                 }
-                
+    
                 if (this.invertCheckbox.checked) {
                     this.applyInvertColors(pixels);
                 }
-                
+    
                 if (this.colorPaletteCheckbox.checked) {
                     this.applyColorPalette(pixels, colorPalette);
                 }
-                
+    
                 if (this.thresholdCheckbox.checked) {
                     this.applyThreshold(pixels, threshold);
                 }
-
+    
                 if (this.halftoneCheckbox.checked) {
-                    this.applyHalftone(pixels, width, height, halftoneRadius)
+                    this.applyHalftone(pixels, width, height, halftoneRadius);
                 }
-
+    
                 // Apply pixelate
                 this.processedCtx.putImageData(imageData, 0, 0);
                 if (this.pixelateCheckbox.checked) {
                     this.pixelateImage(this.processedCtx, width, height, pixelate);
                 }
-               
+    
                 // Create new image for rotation processing
                 const processedImage = new Image();
                 processedImage.onerror = () => {
                     reject(new Error('Failed to load processed image for rotation'));
                 };
-                
-                processedImage.onload = () => {
+    
+                processedImage.onload = async () => {
                     try {
                         // Calculate dimensions for rotated canvas
                         let newWidth = width;
                         let newHeight = height;
-                        
+    
                         if (this.rotationCheckbox.checked) {
                             if (rotation !== 0) {
                                 const absoluteRotation = Math.abs(rotation % (2 * Math.PI));
                                 const sin = Math.abs(Math.sin(absoluteRotation));
                                 const cos = Math.abs(Math.cos(absoluteRotation));
-                                
+    
                                 newWidth = Math.ceil(width * cos + height * sin);
                                 newHeight = Math.ceil(width * sin + height * cos);
                             }
-                            
+    
                             // Resize canvas to fit rotated image
                             this.processedCanvas.width = newWidth;
                             this.processedCanvas.height = newHeight;
-                            
+    
                             // Clear canvas
                             this.processedCtx.clearRect(0, 0, newWidth, newHeight);
-                            
+    
                             // Apply rotation
                             if (rotation !== 0) {
                                 this.processedCtx.translate(newWidth / 2, newHeight / 2);
                                 this.processedCtx.rotate(rotation);
                                 this.processedCtx.translate(-width / 2, -height / 2);
                             }
-                            
+    
                             // Draw the processed image
                             this.processedCtx.drawImage(processedImage, 0, 0, width, height);
                         }
-                        
+    
                         // Apply transparency last
                         if (this.transparencyCheckbox.checked && this.outputFormat.value === 'png') {
                             const finalImageData = this.processedCtx.getImageData(0, 0, newWidth, newHeight);
                             this.applyTransparency(finalImageData.data, newWidth, newHeight);
                             this.processedCtx.putImageData(finalImageData, 0, 0);
                         }
-                        
+    
                         this.saveButton.disabled = false;
                         resolve(); // Resolve the promise after all processing is complete
                     } catch (error) {
                         reject(new Error(`Error during final image processing: ${error.message}`));
                     }
                 };
-                
+    
                 // Set the image source to trigger the load
-                // Use try-catch as toDataURL can throw errors
                 try {
                     processedImage.src = this.processedCanvas.toDataURL();
                 } catch (error) {
                     reject(new Error(`Error creating image data URL: ${error.message}`));
                 }
-                
+    
             } catch (error) {
                 reject(new Error(`Error during initial image processing: ${error.message}`));
             }
         });
     }
+    
 
     
     applyInvertColors(pixels) {
